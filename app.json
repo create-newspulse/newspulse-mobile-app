@@ -3,6 +3,7 @@
     "name": "newspulse-mobile-app-main",
     "slug": "newspulse-mobile-app-main",
     "version": "1.0.0",
+    "entryPoint": "./App.tsx",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "newspulsemobileappmain",
