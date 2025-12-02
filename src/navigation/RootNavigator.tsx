@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 
+import AudioMiniPlayer from "../components/AudioMiniPlayer";
 import ArticleScreen from "../screens/ArticleScreen";
 import AudioScreen from "../screens/AudioScreen";
 import BreakingScreen from "../screens/BreakingScreen";
@@ -31,18 +32,21 @@ function Tabs() {
 const RootNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Tabs"
-          component={Tabs}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Article"
-          component={ArticleScreen}
-          options={{ title: "News Pulse" }} // brand name with space
-        />
-      </Stack.Navigator>
+      <View style={{ flex: 1 }}>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Tabs"
+            component={Tabs}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Article"
+            component={ArticleScreen}
+            options={{ title: "News Pulse" }} // brand name with space
+          />
+        </Stack.Navigator>
+        <AudioMiniPlayer />
+      </View>
     </NavigationContainer>
   );
 };

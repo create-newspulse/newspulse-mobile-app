@@ -1,9 +1,9 @@
 import type { RouteProp } from "@react-navigation/native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import * as Speech from "expo-speech";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { ActivityIndicator, Button, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { api } from "../api/client";
+import { useAudioPlayer } from "../audio/AudioPlayerContext";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { addBookmark, getArticleFromCache, isBookmarked, removeBookmark, setArticleInCache, type NormalizedArticle } from "../storage/bookmarks";
 
@@ -28,7 +28,7 @@ const ArticleScreen: React.FC<Props> = ({ route }) => {
   const { id, initial } = route.params as { id: string; initial?: Partial<Article> };
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
-  const [speaking, setSpeaking] = useState(false);
+  const { currentArticle, isPlaying, playArticle, togglePlayPause } = useAudioPlayer();
   const [bookmarked, setBookmarked] = useState(false);
 
   const fetchArticle = async () => {
@@ -75,20 +75,11 @@ const ArticleScreen: React.FC<Props> = ({ route }) => {
       if (mounted) setBookmarked(b);
     })();
     return () => {
-      Speech.stop();
       mounted = false;
     };
   }, [id]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        // stop TTS when leaving screen
-        Speech.stop();
-        setSpeaking(false);
-      };
-    }, [])
-  );
+  useFocusEffect(React.useCallback(() => { return () => {}; }, []));
 
   useLayoutEffect(() => {
     navigation.setOptions?.({
@@ -119,24 +110,21 @@ const ArticleScreen: React.FC<Props> = ({ route }) => {
     });
   }, [navigation, bookmarked, article, id]);
 
-  const handleSpeak = () => {
+  const handleListenPress = () => {
     if (!article) return;
-
-    if (speaking) {
-      Speech.stop();
-      setSpeaking(false);
-      return;
+    if (!currentArticle || currentArticle._id !== id) {
+      playArticle({
+        _id: id,
+        title: article.title,
+        description: article.description,
+        content: article.content,
+        category: article.category,
+        language: article.language,
+        date: article.date,
+      });
+    } else {
+      togglePlayPause();
     }
-
-    const textBody = article.content || article.description || "";
-    const textToSpeak = `${article.title}. ${textBody}`;
-    setSpeaking(true);
-    Speech.speak(textToSpeak, {
-      language: "en-IN",
-      onDone: () => setSpeaking(false),
-      onStopped: () => setSpeaking(false),
-      onError: () => setSpeaking(false),
-    });
   };
 
   if (loading || !article) {
@@ -178,7 +166,10 @@ const ArticleScreen: React.FC<Props> = ({ route }) => {
         ) : null}
       </View>
       <View style={styles.actionsRow}>
-        <Button title={speaking ? "Pause" : "Listen"} onPress={handleSpeak} />
+        <Button
+          title={currentArticle && currentArticle._id === id && isPlaying ? "Pause" : "Listen"}
+          onPress={handleListenPress}
+        />
         <View style={{ width: 12 }} />
         <Button title="Open on Web" onPress={openOnWeb} />
       </View>
