@@ -1,7 +1,7 @@
+import { API_BASE_URL } from "@/src/constants/config";
 import axios from "axios";
 
 export const api = axios.create({
-  // Render external URL for the News Pulse backend
-  baseURL: "https://newspulse-backend-real.onrender.com",
+  baseURL: API_BASE_URL,
   timeout: 10000,
 });

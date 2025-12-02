@@ -11,7 +11,7 @@ import SavedScreen from "../screens/SavedScreen";
 
 export type RootStackParamList = {
   Tabs: undefined;
-  Article: { id: string };
+  Article: { id: string; initial?: any };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
